@@ -1,0 +1,131 @@
+<!doctype html>
+<html lang="ru">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#edf1f3">
+  <title>Temperature Automation LAB</title>
+  <link rel="stylesheet" href="/static/styles.css?v=2">
+</head>
+<body>
+  <header class="topbar">
+    <a class="brand" href="#overview" aria-label="Temperature Automation LAB">
+      <span class="brand-mark">TA<span>·</span></span>
+      <span class="brand-copy"><strong>AUTOMATION LAB</strong><small>ИЗУЧЕНИЕ ПРИБОРОВ И ДАТЧИКОВ ТЕМПЕРАТУРЫ</small></span>
+    </a>
+    <div class="top-status">
+      <span id="mode-pill" class="mode-pill hardware"><i></i> HARDWARE</span>
+      <span class="connection disconnected"><i id="connection-dot"></i><span id="connection-text">НЕТ ПОДКЛЮЧЕНИЯ</span></span>
+      <button class="icon-button" id="hardware-open" title="Настройки оборудования" aria-label="Настройки оборудования">⚙</button>
+    </div>
+  </header>
+
+  <nav class="tabs" aria-label="Разделы стенда">
+    <button class="tab active" data-view="overview">Стенд</button>
+    <button class="tab" data-view="io">I/O Monitor <span class="tab-count">6</span></button>
+    <button class="tab" data-view="diagnostics">Диагностика <span id="alarm-count" class="tab-count alarm-count">0</span></button>
+    <span class="nav-spacer"></span>
+    <span class="clock-label">ОБНОВЛЕНИЕ <b id="last-update">--:--:--</b></span>
+  </nav>
+
+  <main id="overview-view" class="view active-view">
+    <section class="page-heading">
+      <div><p class="eyebrow">РЕАЛЬНЫЙ СТЕНД <span class="heading-rule"></span> КОНТУР 01</p><h1>Система измерения температуры</h1></div>
+      <div class="heading-right"><span class="status-light"></span><span id="run-state">КОНТУР ОСТАНОВЛЕН</span><span class="heading-divider"></span><span>Опрос <b id="poll-display">1.0</b> с</span></div>
+    </section>
+
+    <section class="temperature-strip" aria-label="Измеренные температуры">
+      <button class="temperature-card" data-sensor="0"><span class="card-top"><span class="tag-dot dot-cyan"></span>T1 <small>ПОДАЧА</small></span><span id="temp-0" class="temperature-value">--.-<i>°C</i></span><span class="card-bottom"><span id="sensor-status-0">НЕТ СВЯЗИ</span><span>Q <b id="quality-0">0</b>%</span></span></button>
+      <button class="temperature-card" data-sensor="1"><span class="card-top"><span class="tag-dot dot-green"></span>T2 <small>НАГРЕВАТЕЛЬ</small></span><span id="temp-1" class="temperature-value">--.-<i>°C</i></span><span class="card-bottom"><span id="sensor-status-1">НЕТ СВЯЗИ</span><span>Q <b id="quality-1">0</b>%</span></span></button>
+      <button class="temperature-card" data-sensor="2"><span class="card-top"><span class="tag-dot dot-orange"></span>T3 <small>ОБРАТНАЯ ЛИНИЯ</small></span><span id="temp-2" class="temperature-value">--.-<i>°C</i></span><span class="card-bottom"><span id="sensor-status-2">НЕТ СВЯЗИ</span><span>Q <b id="quality-2">0</b>%</span></span></button>
+      <div class="temperature-meta"><span class="meta-label">УСТАВКА</span><strong><span id="setpoint-readout">45.0</span><small> °C</small></strong><span class="meta-rule"></span><span class="meta-label">ГИСТЕРЕЗИС</span><b>±<span id="hysteresis-readout">0.5</span> °C</b></div>
+    </section>
+
+    <section class="work-grid">
+      <article class="panel schematic-panel">
+        <div class="panel-heading"><div><span class="section-index">01</span><h2>Технологическая схема</h2></div><span class="panel-unit">ЦИРКУЛЯЦИОННЫЙ КОНТУР</span></div>
+        <div class="schematic-wrap">
+          <svg class="process-svg" viewBox="0 0 900 330" role="img" aria-label="Схема циркуляционного контура с нагревателем, охладителем и тремя точками измерения">
+            <defs>
+              <marker id="flow-arrow" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M 0 0 L 10 5 L 0 10 z" fill="#4b9bb0"/></marker>
+              <pattern id="grid" width="24" height="24" patternUnits="userSpaceOnUse"><path d="M 24 0 L 0 0 0 24" fill="none" stroke="#e9eef0" stroke-width="1"/></pattern>
+            </defs>
+            <rect x="0" y="0" width="900" height="330" fill="url(#grid)"/>
+            <path class="pipe" d="M130 88 H760 V237 H130 V88"/>
+            <path class="flow" d="M246 88 H365 M680 88 H745 M760 139 V199 M642 237 H510 M236 237 H145 M130 190 V133" marker-end="url(#flow-arrow)"/>
+            <text class="pipe-label" x="377" y="74">ПОДАЧА · DN 15</text><text class="pipe-label" x="375" y="264">ОБРАТНАЯ ЛИНИЯ</text>
+
+            <g class="instrument" data-sensor="0" tabindex="0" role="button" aria-label="Открыть параметры датчика T1"><path class="stem" d="M278 88 V48"/><circle class="sensor-ring" cx="278" cy="38" r="15"/><text class="sensor-id" x="278" y="42">T1</text><text class="instrument-label" x="278" y="17">ПОДАЧА</text></g>
+            <g class="instrument" data-sensor="1" tabindex="0" role="button" aria-label="Открыть параметры датчика T2"><path class="stem" d="M500 88 V48"/><circle class="sensor-ring" cx="500" cy="38" r="15"/><text class="sensor-id" x="500" y="42">T2</text><text class="instrument-label" x="500" y="17">ПОСЛЕ НАГРЕВА</text></g>
+            <g class="instrument" data-sensor="2" tabindex="0" role="button" aria-label="Открыть параметры датчика T3"><path class="stem" d="M586 237 V278"/><circle class="sensor-ring" cx="586" cy="288" r="15"/><text class="sensor-id" x="586" y="292">T3</text><text class="instrument-label" x="586" y="320">ОБРАТКА</text></g>
+
+            <g class="equipment pump" id="pump-unit" transform="translate(130 163)"><circle r="34"/><path d="M-12 -14 L17 0 L-12 14 Z"/><text class="equipment-name" x="0" y="55">НАСОС</text><circle class="equipment-led" cx="26" cy="-25" r="4"/></g>
+            <g class="equipment heater" id="heater-unit" transform="translate(418 88)"><rect x="-34" y="-19" width="68" height="38" rx="3"/><path d="M-22 0 C-18 -12 -10 -12 -6 0 S6 12 10 0 S22 -12 26 0"/><text class="equipment-name" x="0" y="-31">НАГРЕВ</text><circle class="equipment-led" cx="30" cy="-13" r="4"/></g>
+            <g class="equipment cooler" id="cooler-unit" transform="translate(760 163)"><rect x="-25" y="-34" width="50" height="68" rx="3"/><circle class="fan" r="17"/><path class="fan-blade" d="M0 -15 Q9 -11 3 -2 Q1 1 0 0Z M15 0 Q11 9 2 3 Q-1 1 0 0Z M0 15 Q-9 11 -3 2 Q-1 -1 0 0Z M-15 0 Q-11 -9 -2 -3 Q1 -1 0 0Z"/><text class="equipment-name" x="0" y="54">ОХЛАЖДЕНИЕ</text><circle class="equipment-led" cx="18" cy="-27" r="4"/></g>
+            <g class="gauge" transform="translate(165 88)"><path d="M-20 0 A20 20 0 0 1 20 0"/><path d="M0 0 L11 -13" class="gauge-needle"/><circle cx="0" cy="0" r="2"/><text x="0" y="-26">P1</text><text x="0" y="15">кПа</text></g>
+            <text x="30" y="34" class="schematic-caption">МАНОМЕТР</text>
+          </svg>
+        </div>
+        <div class="schematic-legend"><span><i class="legend-line"></i>Поток теплоносителя</span><span><i class="legend-sensor"></i>Датчик температуры</span><span><i class="legend-green"></i>Оборудование включено</span><span class="legend-note">Датчики: нажмите для параметров</span></div>
+      </article>
+
+      <aside class="panel control-panel">
+        <div class="panel-heading"><div><span class="section-index">02</span><h2>Управление</h2></div><span id="control-badge" class="state-badge">СТОП</span></div>
+        <div class="control-body">
+          <label class="field-label" for="setpoint-input">ЗАДАНИЕ ТЕМПЕРАТУРЫ <span>SP</span></label>
+          <div class="setpoint-input"><input id="setpoint-input" type="number" min="-50" max="250" step="0.5" value="45"><span>°C</span><button id="apply-setpoint" title="Применить уставку" aria-label="Применить уставку">↵</button></div>
+          <div class="control-row"><label class="field-label" for="hysteresis-input">ГИСТЕРЕЗИС <span>Δ</span></label><div class="compact-input"><input id="hysteresis-input" type="number" min="0.1" max="20" step="0.1" value="1"><span>°C</span></div></div>
+          <div class="control-row"><label class="field-label" for="poll-input">ПЕРИОД ОПРОСА</label><div class="compact-input"><input id="poll-input" type="number" min="0.25" max="60" step="0.25" value="1"><span>с</span></div></div>
+          <label class="field-label" for="control-mode">РЕЖИМ РЕГУЛИРОВАНИЯ</label>
+          <select id="control-mode"><option value="AUTO">Автоматический · гистерезис</option><option value="PID">Автоматический · PID</option><option value="MANUAL">Ручное управление</option></select>
+          <label class="field-label" for="manual-action">РУЧНОЙ ВЫХОД</label>
+          <div class="segmented" id="action-segment"><button data-action="OFF" class="selected">ВЫКЛ</button><button data-action="HEAT">НАГРЕВ</button><button data-action="COOL">ОХЛАЖДЕНИЕ</button></div>
+          <div class="output-state"><span><i id="heater-indicator" class="output-led"></i>Нагреватель</span><b id="heater-state">ОТКЛ</b></div>
+          <div class="output-state"><span><i id="cooler-indicator" class="output-led"></i>Вентилятор</span><b id="cooler-state">ОТКЛ</b></div>
+          <div class="primary-actions"><button id="start-button" class="button-primary" disabled><span>▶</span> ПУСК</button><button id="stop-button" class="button-stop"><span>■</span> СТОП</button></div>
+          <button id="estop-button" class="button-estop"><span>✕</span> КОМАНДА АВАРИЙНОГО ОСТАНОВА</button>
+          <div class="control-footnote"><span class="shield-mark">◇</span><span>Взаимная блокировка активна · ПО не заменяет физическую цепь безопасности</span></div>
+        </div>
+      </aside>
+    </section>
+
+    <section class="panel chart-panel">
+      <div class="panel-heading chart-heading"><div><span class="section-index">03</span><h2>Тренд температуры</h2><span class="chart-unit">°C</span></div><div class="chart-tools"><div class="segmented range-segment"><button data-range="60">1 мин</button><button data-range="300" class="selected">5 мин</button><button data-range="900">15 мин</button><button data-range="3600">1 час</button><button data-range="custom">Интервал</button></div><button class="button-outline" id="export-csv" title="Экспорт истории CSV"><span>↓</span> CSV</button></div></div>
+      <div id="custom-range" class="custom-range" hidden><label>С <input id="range-from" type="datetime-local"></label><label>По <input id="range-to" type="datetime-local"></label><button id="apply-range" class="button-small">Показать</button></div>
+      <div class="chart-legend"><span><i class="line-cyan"></i>T1 · Подача</span><span><i class="line-green"></i>T2 · Нагреватель</span><span><i class="line-orange"></i>T3 · Обратка</span><span><i class="line-dashed"></i>Уставка</span><span class="legend-spacer"></span><span><i class="square-heater"></i>Нагрев</span><span><i class="square-cool"></i>Охлаждение</span></div>
+      <div class="chart-canvas-wrap"><canvas id="trend-chart" aria-label="График температурных трендов"></canvas><div id="chart-tooltip" class="chart-tooltip" hidden></div><div id="chart-empty" class="chart-empty">Нет связи со стендом. Проверьте подключение и карту регистров.</div></div>
+      <div class="chart-foot"><span>АРХИВ · SQLITE</span><span id="history-count">0 точек</span><span class="chart-foot-right">Обновление по WebSocket</span></div>
+    </section>
+    <footer class="page-footer"><span>Temperature Automation LAB</span><span>ПОЛЕВОЙ РЕЖИМ · <b id="footer-mode">HARDWARE</b></span><span>Показания только от подключённого устройства</span></footer>
+  </main>
+
+  <main id="io-view" class="view">
+    <section class="page-heading"><div><p class="eyebrow">КАНАЛЫ СИСТЕМЫ <span class="heading-rule"></span> ДИАГНОСТИКА ВВОДА/ВЫВОДА</p><h1>I/O Monitor</h1></div><div class="heading-right"><span id="io-connection">--</span></div></section>
+    <section class="io-summary"><div><span>AI</span><b id="count-ai">3</b><small>аналоговые входы</small></div><div><span>AO</span><b id="count-ao">1</b><small>аналоговые выходы</small></div><div><span>DI</span><b id="count-di">1</b><small>дискретные входы</small></div><div><span>DO</span><b id="count-do">2</b><small>дискретные выходы</small></div><div class="io-hint"><b>МАСШТАБИРОВАНИЕ</b><span>Пример: 4–20 mA = 0–100 °C. Сырые и инженерные значения отображаются отдельно.</span></div></section>
+    <section class="panel io-panel"><div class="panel-heading"><div><span class="section-index">04</span><h2>Каналы ввода / вывода</h2></div><button class="button-outline" id="refresh-io">↻ Обновить</button></div><div class="table-scroll"><table><thead><tr><th>ТИП</th><th>АДРЕС КАНАЛА</th><th>СИГНАЛ</th><th>СЫРОЕ ЗНАЧЕНИЕ</th><th>ИНЖЕНЕРНОЕ ЗНАЧЕНИЕ</th><th>СОСТОЯНИЕ</th><th>ПОСЛЕДНИЙ ОПРОС</th></tr></thead><tbody id="io-rows"></tbody></table></div><div class="io-disclaimer"><b>О конфигурации сигнала</b><span>PT100/PT1000 подключаются к совместимому RTD-модулю или преобразователю; термопары требуют входного модуля соответствующего типа и компенсации холодного спая. Сигналы 0–10 В и 4–20 мА требуют совместимого, предпочтительно изолированного, аналогового входа. Для RTU необходимы RS-485 и карта регистров, для TCP — Ethernet-контроллер с документированным Modbus-интерфейсом. Напрямую к компьютеру датчики не подключаются.</span></div></section>
+  </main>
+
+  <main id="diagnostics-view" class="view">
+    <section class="page-heading"><div><p class="eyebrow">СОБЫТИЯ И СОСТОЯНИЯ <span class="heading-rule"></span> ЖУРНАЛ ОПЕРАТОРА</p><h1>Диагностика</h1></div><div class="heading-right"><span class="status-light"></span><span id="diag-connection">--</span></div></section>
+    <section class="diagnostic-grid"><article class="panel alarm-panel"><div class="panel-heading"><div><span class="section-index">05</span><h2>Активные аварии</h2></div><span id="active-alarm-badge" class="state-badge">0 АКТИВНЫХ</span></div><div id="alarm-list" class="log-list empty-state">Аварийных событий нет</div></article><article class="panel events-panel"><div class="panel-heading"><div><span class="section-index">06</span><h2>Журнал событий</h2></div><span class="panel-unit">ПОСЛЕДНИЕ 100</span></div><div id="event-list" class="log-list empty-state">Событий пока нет</div></article></section>
+    <section class="panel diagnostic-note"><span class="note-icon">i</span><div><b>Интерпретация сигналов</b><p>Выход значения за рабочий диапазон или потеря связи регистрируются отдельно. Обрыв датчика отмечается только при наличии достоверной аппаратной диагностики (например, флаг RTD/термопарного модуля). Одиночное необычное показание само по себе не считается доказательством неисправности.</p></div></section>
+  </main>
+
+  <dialog id="sensor-dialog" class="dialog sensor-dialog"><form method="dialog"><button class="dialog-close" aria-label="Закрыть">×</button></form><p class="eyebrow">КАНАЛ ИЗМЕРЕНИЯ</p><h2 id="sensor-title">T1 · Подача</h2><div class="sensor-reading"><strong id="sensor-dialog-value">--.-</strong><span>°C</span><i id="sensor-dialog-quality">Q --%</i></div><dl class="detail-list"><div><dt>Тип сигнала</dt><dd id="sensor-signal">Симуляция</dd></div><div><dt>Адрес / канал</dt><dd id="sensor-address">SIM-AI-1</dd></div><div><dt>Качество</dt><dd id="sensor-dialog-status">Ожидание</dd></div><div><dt>Обновление</dt><dd id="sensor-updated">--</dd></div></dl><div class="dialog-callout">Для физических датчиков требуется совместимый измерительный модуль или преобразователь. Уточните электрическую схему и карту регистров изготовителя.</div></dialog>
+
+  <dialog id="hardware-dialog" class="dialog hardware-dialog"><form method="dialog"><button class="dialog-close" aria-label="Закрыть">×</button></form><p class="eyebrow">ПОЛЕВОЙ УРОВЕНЬ · MODBUS</p><h2>Настройка подключения</h2><div class="mode-choice"><button data-transport="TCP">Modbus TCP</button><button data-transport="RTU" class="selected">Modbus RTU · RS-485</button></div>
+    <div class="hardware-fields"><label class="tcp-field" hidden>IP-АДРЕС<input id="hw-host" placeholder="IP из конфигурации ПЛК"></label><label class="tcp-field" hidden>TCP-ПОРТ<input id="hw-port" type="number" placeholder="Порт из документации"></label><label class="rtu-field">COM-ПОРТ<select id="hw-com"><option value="">Выберите COM-порт</option></select></label><label class="rtu-field">СКОРОСТЬ<select id="hw-baud"><option value="">Выберите из документации</option><option>9600</option><option>19200</option><option>38400</option><option>57600</option><option>115200</option></select></label><label class="rtu-field">ЧЁТНОСТЬ<select id="hw-parity"><option value="">Выберите из документации</option><option value="N">Нет</option><option value="E">Чётная</option><option value="O">Нечётная</option></select></label><label class="rtu-field">СТОП-БИТЫ<select id="hw-stopbits"><option value="">Выберите из документации</option><option>1</option><option>2</option></select></label><label>SLAVE ID<input id="hw-slave" type="number" min="1" max="247" placeholder="Из документации"></label><label>ТИП РЕГИСТРА<select id="hw-register-type"><option value="">Выберите из документации</option><option value="holding">Holding register</option><option value="input">Input register</option></select></label><label>ТИП ДАННЫХ<select id="hw-data-type"><option value="">Выберите из документации</option><option value="uint16">uint16</option><option value="int16">int16</option><option value="uint32">uint32</option><option value="int32">int32</option><option value="float32">float32</option></select></label><label>ПОРЯДОК СЛОВ<select id="hw-byte-order"><option value="">Выберите из документации</option><option value="big">Big endian</option><option value="little">Little endian</option></select></label><label>КОЭФФИЦИЕНТ<input id="hw-scale" type="number" step="any" placeholder="Из документации"></label><label>СМЕЩЕНИЕ<input id="hw-offset" type="number" step="any" placeholder="Из документации"></label></div>
+    <div class="dialog-callout">Масштабирование: инженерное значение = raw × коэффициент + смещение. Пример 4–20 мА = 0–100 °C: коэффициент 6.25, смещение −25, если регистр модуля содержит значение в mA. Для другого формата следуйте документации модуля.</div>
+    <div class="register-map"><b>Карта регистров температуры · адреса из документации</b><div><label>T1<input id="hw-reg-1" type="number" min="0" max="65535" placeholder="Адрес"></label><label>T2<input id="hw-reg-2" type="number" min="0" max="65535" placeholder="Адрес"></label><label>T3<input id="hw-reg-3" type="number" min="0" max="65535" placeholder="Адрес"></label></div></div>
+    <div class="register-map"><b>Выходные катушки · только для записи по карте производителя</b><div><label>НАГРЕВ<input id="hw-coil-heat" type="number" min="0" max="65535" placeholder="Адрес катушки"></label><label>ОХЛАЖДЕНИЕ<input id="hw-coil-cool" type="number" min="0" max="65535" placeholder="Адрес катушки"></label></div></div>
+    <label class="device-name-label">ВЫБРАННОЕ УСТРОЙСТВО / МОДЕЛЬ<input id="hw-device" placeholder="Например, модель ПЛК (не карта регистров)"></label>
+    <div class="write-guard"><label><input id="hw-write-enable" type="checkbox"><span>Разрешить запись выходов после явного подтверждения</span></label><input id="hw-write-confirm" placeholder="Введите ENABLE OUTPUT WRITES" autocomplete="off"><p>До подтверждения разрешено только чтение. Для пуска аппаратного управления потребуется отдельное подтверждение. Адреса катушек выходов должны быть взяты из карты производителя, здесь они намеренно не заданы.</p></div>
+    <div class="hardware-actions"><button id="save-hardware" class="button-outline">Сохранить настройки</button><button id="connect-hardware" class="button-primary">Подключить · только чтение</button></div>
+    <div class="equipment-note"><b>Требуемое оборудование и безопасность</b><span>RTD (PT100/PT1000): модуль RTD / преобразователь; термопара: модуль нужного типа; 0–10 В или 4–20 мА: совместимый AI-модуль/преобразователь; Modbus RTU: RS-485 + контроллер/измерительный модуль; Modbus TCP: Ethernet-контроллер. Параметры регистров берите из документации конкретного устройства. Аппаратный останов, ограничитель температуры и межблокировки должны быть реализованы независимой аппаратной цепью; ПО и связь не являются функцией безопасности.</span></div>
+    <div id="hardware-message" class="hardware-message" role="status"></div>
+  </dialog>
+
+  <div id="toast" class="toast" role="status"></div>
+  <script src="/static/app.js?v=3"></script>
+</body>
+</html>

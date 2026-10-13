@@ -1,0 +1,1 @@
+"""Independent Temperature Automation LAB application backend."""
